@@ -1,0 +1,260 @@
+﻿@page
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+    <link href="~/css/style.css" rel="stylesheet" />
+    <style>
+   
+
+        /* Media Queries */
+    </style>
+</head>
+<body>
+    <!-- محتوای صفحه Todo -->
+    <div id="todo-app">
+        <div class="filters">
+            <h2>Your Dashboard</h2>
+            <button onclick="filterByCategory('all')">All</button>
+            <div>
+                <select onchange="filterByCategory(this.value)">
+                    <option value="" disabled selected>Priority</option>
+                    <option value="low-priority">Low</option>
+                    <option value="normal-priority">Normal</option>
+                    <option value="high-priority">High</option>
+                </select>
+            </div>
+            <div>
+                <select id="date-filter" onchange="sortByDate(this.value)">
+                    <option value="" disabled selected>Filter by Date</option>
+                    <option value="asc">Ascending</option>
+                    <option value="desc">Descending</option>
+                </select>
+            </div>
+            <button onclick="filterByCategory('finished')">Finished</button>
+            <button onclick="filterByCategory('archived')">Archived</button>
+            <button style="background-color: red;" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="tasks-area">
+            <div class="input-model">
+                <input id="new-todo" type="text" placeholder="Add a todo ..." onkeypress="handleEnter(event)">
+                <button id="addbtn" onclick="addNewTodo()">+</button>
+                <span id="space"></span>
+                <input id="search-todo" type="text" placeholder="Search tasks" oninput="filterTodos()">
+            </div>
+
+            <div class="row">
+                <div class="todo-container normal-priority" id="normal-priority">
+                    <div class="title">Normal Priority</div>
+                    @foreach (var todo in Model.Where(t => t.Priority == "normal"))
+                    {
+                        <div class="todo-item" data-id="@todo.Id" style="background-color: @todo.Priority">
+                            <span class="text">@todo.Title</span>
+                            <span class="date">@todo.CreatedAt.ToShortDateString()</span>
+                            <button onclick="changePriority(@todo.Id, 'high')">Set High Priority</button>
+                            <button onclick="changePriority(@todo.Id, 'low')">Set Low Priority</button>
+                            <button onclick="changeStatus(@todo.Id, 'finished')">Finish</button>
+                            <button onclick="changeStatus(@todo.Id, 'archived')">Archive</button>
+                        </div>
+                    }
+                </div>
+                <div class="todo-container high-priority" id="high-priority">
+                    <div class="title">High Priority</div>
+                    @foreach (var todo in Model.Where(t => t.Priority == "high"))
+                    {
+                        <div class="todo-item" data-id="@todo.Id" style="background-color: @todo.Priority">
+                            <span class="text">@todo.Title</span>
+                            <span class="date">@todo.CreatedAt.ToShortDateString()</span>
+                            <button onclick="changePriority(@todo.Id, 'normal')">Set Normal Priority</button>
+                            <button onclick="changePriority(@todo.Id, 'low')">Set Low Priority</button>
+                            <button onclick="changeStatus(@todo.Id, 'finished')">Finish</button>
+                            <button onclick="changeStatus(@todo.Id, 'archived')">Archive</button>
+                        </div>
+                    }
+                </div>
+                <div class="todo-container low-priority" id="low-priority">
+                    <div class="title">Low Priority</div>
+                    @foreach (var todo in Model.Where(t => t.Priority == "low"))
+                    {
+                        <div class="todo-item" data-id="@todo.Id" style="background-color: @todo.Priority">
+                            <span class="text">@todo.Title</span>
+                            <span class="date">@todo.CreatedAt.ToShortDateString()</span>
+                            <button onclick="changePriority(@todo.Id, 'normal')">Set Normal Priority</button>
+                            <button onclick="changePriority(@todo.Id, 'high')">Set High Priority</button>
+                            <button onclick="changeStatus(@todo.Id, 'finished')">Finish</button>
+                            <button onclick="changeStatus(@todo.Id, 'archived')">Archive</button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="row-bottom">
+                <div class="todo-container finished" id="finished">
+                    <div class="title">Finished</div>
+                    @foreach (var todo in Model.Where(t => t.Status == "finished"))
+                    {
+                        <div class="todo-item" style="background-color: lightgrey;">
+                            <span class="text">@todo.Title</span>
+                            <span class="date">@todo.CreatedAt.ToShortDateString()</span>
+                            <button onclick="changeStatus(@todo.Id, 'archived')">Archive</button>
+                        </div>
+                    }
+                </div>
+                <div class="todo-container archived" id="archived">
+                    <div class="title">Archived</div>
+                    @foreach (var todo in Model.Where(t => t.Status == "archived"))
+                    {
+                        <div class="todo-item" style="opacity: 0.8;">
+                            <span class="text">@todo.Title</span>
+                            <span class="date">@todo.CreatedAt.ToShortDateString()</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                addNewTodo();
+            }
+        }
+
+        function addNewTodo() {
+            const input = document.getElementById('new-todo');
+            const text = input.value.trim();
+            if (text) {
+                const container = document.getElementById('normal-priority');
+                const newTodo = createTodoItem(text, 'normal-priority');
+                container.appendChild(newTodo);
+                input.value = '';
+            } else {
+                alert("Please enter a valid task.");
+            }
+        }
+
+        function createTodoItem(text, priority = 'normal-priority') {
+            const item = document.createElement('div');
+            item.className = `todo-item ${priority}`;
+
+            const textSpan = document.createElement('span');
+            textSpan.className = 'text';
+            textSpan.textContent = text;
+            item.appendChild(textSpan);
+
+            const dateSpan = document.createElement('span');
+            dateSpan.className = 'date';
+            dateSpan.textContent = new Date().toLocaleDateString();
+            dateSpan.onclick = () => {
+                const newDate = prompt('Edit date:', dateSpan.textContent);
+                if (newDate) {
+                    dateSpan.textContent = newDate;
+                }
+            };
+            item.appendChild(dateSpan);
+
+            const buttonsContainer = document.createElement('div');
+
+            const editButton = document.createElement('button');
+            editButton.className = 'edit';
+            editButton.textContent = 'Edit';
+            editButton.onclick = () => editTodoItem(item);
+            buttonsContainer.appendChild(editButton);
+
+            const removeButton = document.createElement('button');
+            removeButton.className = 'remove';
+            removeButton.textContent = 'X';
+            removeButton.onclick = () => item.remove();
+            buttonsContainer.appendChild(removeButton);
+
+            item.appendChild(buttonsContainer);
+
+            item.draggable = true;
+            item.addEventListener('dragstart', () => {
+                item.classList.add('dragging');
+            });
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+            });
+
+            return item;
+        }
+
+        function changePriority(todoId, newPriority) {
+            // ارسال درخواست به سرور برای تغییر اولویت
+            fetch(`/Todo/ChangePriority/${todoId}/${newPriority}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Priority updated');
+                    location.reload();
+                } else {
+                    alert('Error updating priority');
+                }
+            });
+        }
+
+        function changeStatus(todoId, newStatus) {
+            // ارسال درخواست به سرور برای تغییر وضعیت
+            fetch(`/Todo/ChangeStatus/${todoId}/${newStatus}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Status updated');
+                    location.reload();
+                } else {
+                    alert('Error updating status');
+                }
+            });
+        }
+
+        function filterTodos() {
+            const searchText = document.getElementById('search-todo').value.toLowerCase();
+            const todos = document.querySelectorAll('.todo-item');
+            todos.forEach(todo => {
+                const text = todo.querySelector('.text').textContent.toLowerCase();
+                todo.style.display = text.includes(searchText) ? 'flex' : 'none';
+            });
+        }
+
+        function filterByCategory(category) {
+            const containers = document.querySelectorAll('.todo-container');
+            containers.forEach(container => {
+                container.style.display = category === 'all' || container.id === category ? '' : 'none';
+            });
+        }
+
+        function sortByDate(order) {
+            const container = document.getElementById('normal-priority');
+            const todos = Array.from(container.querySelectorAll('.todo-item'));
+            todos.sort((a, b) => {
+                const dateA = new Date(a.querySelector('.date').textContent);
+                const dateB = new Date(b.querySelector('.date').textContent);
+                return order === 'asc' ? dateA - dateB : dateB - dateA;
+            });
+            todos.forEach(todo => container.appendChild(todo));
+        }
+
+        function logout() {
+            alert("You have been logged out.");
+        }
+
+        document.querySelectorAll('.todo-container').forEach(container => {
+            container.addEventListener('dragover', e => {
+                e.preventDefault();
+                const dragging = document.querySelector('.dragging');
+                container.appendChild(dragging);
+            });
+        });
+    </script>
+</body>
+</html>

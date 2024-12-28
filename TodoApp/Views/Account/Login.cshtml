@@ -1,0 +1,171 @@
+﻿@page
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Sign Up</title>
+    <style>
+        /* استایل‌های شما */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #3b4465;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+            .input-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-size: 14px;
+                color: #333;
+            }
+
+            .input-group input {
+                width: 100%;
+                padding: 10px;
+                font-size: 14px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                margin-top: 6px;
+            }
+
+            .input-group button {
+                width: 100%;
+                padding: 10px;
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+                .input-group button:hover {
+                    background-color: #45a049;
+                }
+
+        .error {
+            color: red;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .toggle-form {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+            .toggle-form a {
+                color: #4CAF50;
+                text-decoration: none;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>Login / Sign Up</h2>
+
+        <!-- بررسی اینکه آیا خطایی وجود دارد یا خیر -->
+        @* @if (ViewData["Error"] != null) *@
+        @* { *@
+        @*     <div class="error"> *@
+        @*         @ViewData["Error"] *@
+        @*     </div> *@
+        @* } *@
+
+        <!-- فرم لاگین -->
+        <div id="loginForm">
+            <form action="/Account/Login" method="post">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <div class="input-group">
+                    <button type="submit">Login</button>
+                </div>
+            </form>
+            <div class="toggle-form">
+                Don't have an account? <a href="javascript:void(0);" onclick="toggleForm()">Sign Up</a>
+            </div>
+        </div>
+
+        <!-- فرم ثبت‌نام -->
+        <div id="signupForm" style="display: none;">
+            <form action="/Account/SignUp" method="post">
+                <div class="input-group">
+                    <label for="signup-email">E-mail</label>
+                    <input type="email" id="signup-email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div class="input-group">
+                    <label for="signup-username">Username</label>
+                    <input type="text" id="signup-username" name="username" placeholder="Choose a username" required>
+                </div>
+                <div class="input-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" name="password" placeholder="Enter your password" required>
+                </div>
+                <div class="input-group">
+                    <label for="signup-password-confirm">Confirm Password</label>
+                    <input type="password" id="signup-password-confirm" name="passwordConfirm" placeholder="Confirm your password" required>
+                </div>
+                <div class="input-group">
+                    <button type="submit">Sign Up</button>
+                </div>
+            </form>
+            <div class="toggle-form">
+                Already have an account? <a href="javascript:void(0);" onclick="toggleForm()">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // توابع جابجایی فرم‌ها (لاگین / ثبت‌نام)
+        function toggleForm() {
+            var loginForm = document.getElementById('loginForm');
+            var signupForm = document.getElementById('signupForm');
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                signupForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+            }
+        }
+    </script>
+
+</body>
+</html>
+
+
